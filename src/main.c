@@ -10,7 +10,7 @@
 #define NB_CHANNELS 2
 #define BUFFER_SIZE 64
 
-#define SAMPLE_RATE 44100 // Hz
+#define SAMPLE_RATE 48000 // Hz
 #define BIT_PER_SAMPLES 16
 
 int main(int argc, char* argv[])
@@ -21,8 +21,8 @@ int main(int argc, char* argv[])
 
 	FILE *input_file, *output_file;
 
-	int32_t input_file_buffer[BUFFER_SIZE*NB_CHANNELS];
-	int32_t output_file_buffer[BUFFER_SIZE*NB_CHANNELS];
+	int16_t input_file_buffer[BUFFER_SIZE*NB_CHANNELS];
+	int16_t output_file_buffer[BUFFER_SIZE*NB_CHANNELS];
 	
 	float32_t input_buffer[BUFFER_SIZE* NB_CHANNELS];
 	float32_t output_buffer[BUFFER_SIZE* NB_CHANNELS];
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
 	// --------------------------------------------------------------------- //
 	// Parse program arguments
-	while((c = getopt(argc, argv, "i:o")) != -1)
+	while((c = getopt(argc, argv, "i:o:")) != -1)
 	{
 		switch(c)
 		{
@@ -165,7 +165,8 @@ int main(int argc, char* argv[])
 		}
 
 		// Processing
-
+		memcpy(p_out[0], p_in[0], sizeof(float32_t)*BUFFER_SIZE);
+		memcpy(p_out[1], p_in[1], sizeof(float32_t)*BUFFER_SIZE);
 
 		// Interleave for output
 		for (channel=0; channel<NB_CHANNELS; channel++)
