@@ -1,0 +1,33 @@
+clear all;
+close all;
+
+%% Parameters
+folder_name = 'playlist';
+files = dir(fullfile(folder_name, '*.mp3'));
+
+input_gain_v = [-10.2; -3.8; -2.8; -9.3; 1.79; -11; -10.5; -0.72; -1.73;...
+                -1.67; -12.21; 4.29; -9.95; -1.05; -3.82; -0.62; -13.14;...
+                -6.04; -2.77];
+
+%% Process Playlist
+if ~isempty(files)
+    for k = 1:length(files)
+        input_filename  = [folder_name '/' files(k).name];
+        output_filename = [folder_name ...
+                           '/out_' ...
+                           replace(files(k).name,'mp3','wav')];
+        input_gain = input_gain_v(k);
+                       
+        fprintf("Processing File %d: %s\n",k,files(k).name);
+        run_auto_level;
+        fprintf("Done\n");
+        fprintf("RMS:  mean %.1fdB, min %.1fdB, max %.1fdB\n",...
+                db(mean(rms_v(10*Fs:end-10*Fs))),...
+                db( min(rms_v(10*Fs:end-10*Fs))),...
+                db( max(rms_v(10*Fs:end-10*Fs))));
+        fprintf("GAIN: mean %.1fdB, min %.1fdB, max %.1fdB\n",...
+                db(mean(slow_gain_v(10*Fs:end-10*Fs))),...
+                db( min(slow_gain_v(10*Fs:end-10*Fs))),...
+                db( max(slow_gain_v(10*Fs:end-10*Fs))));
+    end
+end

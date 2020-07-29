@@ -16,25 +16,32 @@ out_m = out_m(1:N,:);
 
 time_v = (0:N-1)'/Fs;
 
+error_m = out_m-in_m;
+
+max_error_l = db(max(abs(error_m(:,1))));
+max_error_r = db(max(abs(error_m(:,1))));
+
 % Trace
 figure;
 
-subplot(211);
+s1 = subplot(211);
 
 plot(time_v,in_m(:,1));
 hold on;
 plot(time_v,out_m(:,1));
-plot(time_v,out_m(:,1)-in_m(:,1));
+% plot(time_v,out_m(:,1)-in_m(:,1));
 
 ylabel('L');
 grid on;
 
-subplot(212);
+s2 = subplot(212);
 
 plot(time_v,in_m(:,2));
 hold on;
 plot(time_v,out_m(:,2));
-plot(time_v,out_m(:,2)-in_m(:,2));
+% plot(time_v,out_m(:,2)-in_m(:,2));
+
+linkaxes([s1 s2],'x');
 
 ylabel('R');
 xlabel('Time (s)');

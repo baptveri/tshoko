@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,12 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.c" />
+    <ClCompile Include="..\src\modules\auto_level\auto_level.c" />
     <ClCompile Include="..\src\utils\getopt.c" />
     <ClCompile Include="..\src\utils\wav.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\common\cerror.h" />
     <ClInclude Include="..\src\common\cmath.h" />
     <ClInclude Include="..\src\common\ctypes.h" />
+    <ClInclude Include="..\src\modules\auto_level\auto_level.h" />
     <ClInclude Include="..\src\utils\getopt.h" />
     <ClInclude Include="..\src\utils\wav.h" />
   </ItemGroup>

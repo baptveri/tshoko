@@ -7,6 +7,8 @@
 #include <utils/getopt.h>
 #include <utils/wav.h>
 
+#include <modules/auto_level/auto_level.h>
+
 #define NB_CHANNELS 2
 #define BUFFER_SIZE 64
 
@@ -31,6 +33,8 @@ int main(int argc, char* argv[])
 
 	bool is_input_wav  = false;
 	bool is_output_wav = false;
+
+	auto_level_t auto_level;
 
 	// Variables for program arguments parsing
 	int c;
@@ -126,6 +130,9 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	// Initialize Processing
+	auto_level_init(&auto_level);
+
 	// --------------------------------------------------------------------- //
 	// Processing
 
@@ -165,8 +172,9 @@ int main(int argc, char* argv[])
 		}
 
 		// Processing
-		memcpy(p_out[0], p_in[0], sizeof(float32_t)*BUFFER_SIZE);
-		memcpy(p_out[1], p_in[1], sizeof(float32_t)*BUFFER_SIZE);
+		//memcpy(p_out[0], p_in[0], sizeof(float32_t)*BUFFER_SIZE);
+		//memcpy(p_out[1], p_in[1], sizeof(float32_t)*BUFFER_SIZE);
+		auto_level_process(&auto_level,p_in,p_out,BUFFER_SIZE);
 
 		// Interleave for output
 		for (channel=0; channel<NB_CHANNELS; channel++)
