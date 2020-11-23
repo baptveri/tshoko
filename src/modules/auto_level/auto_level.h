@@ -3,8 +3,9 @@
 #ifndef AUTO_LEVEL_H
 #define AUTO_LEVEL_H
 
-#include <common/cerror.h>
-#include <common/ctypes.h>
+#include <common/dsp_error.h>
+#include <common/dsp_types.h>
+#include <modules/tools/biquad.h>
 
 // Structure definitions
 typedef struct auto_level
@@ -21,6 +22,12 @@ typedef struct auto_level
     float32_t z0_release;
     float32_t comp_threshold;
 
+    // Filter Parameters
+    biquad_config_t bass_filter_config;
+    biquad_config_t treble_filter_config;
+    biquad_param_t bass_filter_param;
+    biquad_param_t treble_filter_param;
+
     // States
     float32_t rms2_l;
     float32_t rms2_r;
@@ -28,6 +35,10 @@ typedef struct auto_level
     float32_t slow_gain;
     float32_t env_l;
     float32_t env_r;
+    biquad_state_t bass_filter_stateL;
+    biquad_state_t bass_filter_stateR;
+    biquad_state_t treble_filter_stateL;
+    biquad_state_t treble_filter_stateR;
 }auto_level_t;
 
 // Enums

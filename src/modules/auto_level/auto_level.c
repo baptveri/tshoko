@@ -2,7 +2,8 @@
 
 #include "auto_level.h"
 
-#include <common/cmath.h>
+#include <common/dsp_math.h>
+#include <modules/tools/biquad.h>
 
 // Defines
 #define AUTO_LEVEL_DEFAULT_GAIN 1.f
@@ -17,6 +18,16 @@
 #define AUTO_LEVEL_DEFAULT_Z0_GAIN (0.99996875f) // = 2 sec at 48kHz
 #define AUTO_LEVEL_DEFAULT_COMP_RELEASE (0.9993752f) // = 0.1 sec at 48kHz
 #define AUTO_LEVEL_DEFAULT_COMP_THRESHOLD (1.f) // = 0dBFS
+
+#define AUTO_LEVEL_BASS_FILTER_FREQ         80.f // Hz
+#define AUTO_LEVEL_BASS_FILTER_Q            0.5f
+#define AUTO_LEVEL_BASS_FILTER_GAIN_DB      0.f  // dB
+#define AUTO_LEVEL_BASS_FILTER_TYPE         HIGHPASS
+
+#define AUTO_LEVEL_TREBLE_FILTER_FREQ       1500.f // Hz
+#define AUTO_LEVEL_TREBLE_FILTER_Q          1.f
+#define AUTO_LEVEL_TREBLE_FILTER_GAIN_DB    4.f  // dB
+#define AUTO_LEVEL_TREBLE_FILTER_TYPE       HIGHSHELF
 
 // API functions
 uint32_t auto_level_get_size()
@@ -45,6 +56,38 @@ void auto_level_init(auto_level_t* p_auto_level)
     p_auto_level->slow_gain = AUTO_LEVEL_DEFAULT_GAIN;
     p_auto_level->env_l = 0.f;
     p_auto_level->env_r = 0.f;
+
+    // Filter configurations
+    p_auto_level->bass_filter_config.f = AUTO_LEVEL_BASS_FILTER_FREQ;
+    p_auto_level->bass_filter_config.q = AUTO_LEVEL_BASS_FILTER_Q;
+    p_auto_level->bass_filter_config.g_db = AUTO_LEVEL_BASS_FILTER_GAIN_DB;
+    p_auto_level->bass_filter_config.type = AUTO_LEVEL_BASS_FILTER_TYPE;
+
+    p_auto_level->treble_filter_config.f = AUTO_LEVEL_TREBLE_FILTER_FREQ;
+    p_auto_level->treble_filter_config.q = AUTO_LEVEL_TREBLE_FILTER_Q;
+    p_auto_level->treble_filter_config.g_db = AUTO_LEVEL_TREBLE_FILTER_GAIN_DB;
+    p_auto_level->treble_filter_config.type = AUTO_LEVEL_TREBLE_FILTER_TYPE;
+
+    // Init biquads and set coefficients
+    biquad_init(
+        &p_auto_level->bass_filter_param,
+        &p_auto_level->bass_filter_stateL);
+    biquad_init(
+        &p_auto_level->bass_filter_param,
+        &p_auto_level->bass_filter_stateR);
+    biquad_init(
+        &p_auto_level->treble_filter_param,
+        &p_auto_level->treble_filter_stateL);
+    biquad_init(
+        &p_auto_level->treble_filter_param,
+        &p_auto_level->treble_filter_stateR);
+
+    biquad_compute_coeffs(
+        &p_auto_level->bass_filter_config,
+        &p_auto_level->bass_filter_param);
+    biquad_compute_coeffs(
+        &p_auto_level->treble_filter_config,
+        &p_auto_level->treble_filter_param);
 }
 
 void auto_level_process(
@@ -69,15 +112,47 @@ void auto_level_process(
     float32_t slow_gain = p_auto_level->slow_gain;
     float32_t env_l = p_auto_level->env_l;
     float32_t env_r = p_auto_level->env_r;
-    
+
+    // Filter input signal with bass and treble filter
+    // Output buffer is used as temporary buffer
+    biquad_process(
+        p_inL, 
+        p_outL,
+        &p_auto_level->bass_filter_param,
+        &p_auto_level->bass_filter_stateL,
+        buffer_size);
+    biquad_process(
+        p_outL,
+        p_outL,
+        &p_auto_level->treble_filter_param,
+        &p_auto_level->treble_filter_stateL,
+        buffer_size);
+
+    biquad_process(
+        p_inL,
+        p_outR,
+        &p_auto_level->bass_filter_param,
+        &p_auto_level->bass_filter_stateR,
+        buffer_size);
+    biquad_process(
+        p_outR,
+        p_outR,
+        &p_auto_level->treble_filter_param,
+        &p_auto_level->treble_filter_stateR,
+        buffer_size);
+
     for(i = 0; i < buffer_size; i++)
     {
         float32_t inL = *p_inL++;
         float32_t inR = *p_inR++;
+        float32_t side_chainL = *p_outL;
+        float32_t side_chainR = *p_outR;
 
         // Compute rms
-        rms2_l = M_SQR(inL) - p_auto_level->z0_rms * (M_SQR(inL) - rms2_l);
-        rms2_r = M_SQR(inR) - p_auto_level->z0_rms * (M_SQR(inR) - rms2_r);
+        rms2_l = M_SQR(side_chainL)
+            - p_auto_level->z0_rms * (M_SQR(side_chainL) - rms2_l);
+        rms2_r = M_SQR(side_chainR)
+            - p_auto_level->z0_rms * (M_SQR(side_chainR) - rms2_r);
 
         rms = M_SQRT(p_auto_level->rms2_l + p_auto_level->rms2_r);
 
@@ -163,7 +238,7 @@ error_t auto_level_set(
     auto_level_param_id_t id,
     void* p_data)
 {
-    error_t error = E_NO_ERROR;
+    error_t error = DSP_NO_ERROR;
 
     switch(id)
     {
@@ -198,9 +273,8 @@ error_t auto_level_set(
         p_auto_level->comp_threshold = *(float32_t*)p_data;
         break;
     default:
-        return E_DSP_PARAM_ID_ERROR;
+        return DSP_PARAM_ID_ERROR;
     }
 
     return error;
 }
-

@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <common/cmath.h>
-#include <common/ctypes.h>
+#include <common/common.h>
+#include <common/dsp_math.h>
+#include <common/dsp_types.h>
 #include <utils/getopt.h>
 #include <utils/wav.h>
 
@@ -12,8 +13,10 @@
 #define NB_CHANNELS 2
 #define BUFFER_SIZE 64
 
-#define SAMPLE_RATE 48000 // Hz
 #define BIT_PER_SAMPLES 16
+
+#define INPUT_GAIN  0.5f
+#define OUTPUT_GAIN 1.f
 
 int main(int argc, char* argv[])
 {
@@ -165,7 +168,7 @@ int main(int argc, char* argv[])
 		{
 			for (i=0; i<BUFFER_SIZE; i++)
 			{
-				input_buffer[i+channel*BUFFER_SIZE] =
+				input_buffer[i+channel*BUFFER_SIZE] = INPUT_GAIN *
 					Q15_TO_FLOAT(input_file_buffer[NB_CHANNELS*i+channel]);
 			}
 				
@@ -181,8 +184,11 @@ int main(int argc, char* argv[])
 		{
 			for (i=0; i<BUFFER_SIZE; i++)
 			{
-				output_file_buffer[NB_CHANNELS*i+channel] =
-					FLOAT_TO_Q15(output_buffer[i+channel* BUFFER_SIZE]);
+				float32_t value = OUTPUT_GAIN *
+					output_buffer[i + channel * BUFFER_SIZE];
+				value = M_MAX(value, -1.f);
+				value = M_MIN(value, 1.f);
+				output_file_buffer[NB_CHANNELS*i+channel] = FLOAT_TO_Q15(value);
 			}
 
 		}

@@ -152,9 +152,11 @@ backup:		clean
 tshoko: plugins/tshoko_auto_level.c ladspa.h gcc_exports.map ../../../src/modules/auto_level/auto_level.c
 	$(CC) $(THSOKO_CFLAGS) -o plugins/tshoko_auto_level.o -c plugins/tshoko_auto_level.c
 	$(CC) $(THSOKO_CFLAGS) -o plugins/auto_level.o -c ../../../src/modules/auto_level/auto_level.c
+	$(CC) $(THSOKO_CFLAGS) -o plugins/biquad.o -c ../../../src/modules/tools/biquad.c
 	$(CC)	-o ../plugins/tshoko_auto_level.so					\
 		plugins/tshoko_auto_level.o						\
 		plugins/auto_level.o						\
+		plugins/biquad.o							\
 		-shared							\
 		$(CFLAGS)						\
 		-fvisibility=hidden					\
