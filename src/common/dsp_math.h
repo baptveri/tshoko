@@ -23,7 +23,9 @@
 #define M_ABS(a) (a<0?-a:a)
 #define M_SQR(a) (a*a)
 
-#define M_PI (3.1415927410125732421875f)
+#ifndef M_PI
+    #define M_PI (3.1415927410125732421875f)
+#endif
 
 float32_t db2lin(float32_t val_db);
 float32_t lin2db(float32_t val);

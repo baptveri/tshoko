@@ -90,7 +90,7 @@ static void connectPortToTshokoAutoLevel(
             auto_level_set(
                 &(tshoko_auto_level->auto_level),
                 AUTO_LEVEL_NOISE_TIME_SAMPLE,
-                (void*)DataLocation);
+                (void*)&uInt32Val);
             break;
 
         case TS_AUTO_LEVEL_RMS_TARGET:

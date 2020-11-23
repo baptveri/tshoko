@@ -3,6 +3,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define SAMPLE_RATE 48000 // Hz
+#define SAMPLE_RATE 44100 // Hz
 
 #endif // COMMON_H

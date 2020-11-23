@@ -76,10 +76,17 @@ error_t biquad_compute_coeffs(
 {
     error_t error = DSP_NO_ERROR;
 
-    float32_t wc = 2.f * M_PI * p_config->f / SAMPLE_RATE;
+    float32_t wc = 2.f * M_PI * p_config->f / (float32_t)SAMPLE_RATE;
     float32_t q  = p_config->q;
     float32_t g_db = p_config->g_db;
     float32_t b0, b1, b2, a0, a1, a2;
+
+    b0 = 1.f;
+    b1 = 0.f;
+    b2 = 0.f;
+    a0 = 1.f;
+    a1 = 0.f;
+    a2 = 0.f;
 
     switch(p_config->type)
     {
