@@ -49,6 +49,11 @@ void file_saver_init(file_saver_t* p_file_saver)
     p_file_saver->file_idx = 0;
 }
 
+void file_saver_close(file_saver_t* p_file_saver)
+{
+    free(p_file_saver->flush_buffer);
+}
+
 void file_saver_process(
     file_saver_t *p_file_saver,
     float32_t **p_in,

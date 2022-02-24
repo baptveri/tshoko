@@ -36,3 +36,6 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=$CONFIG ..
 make
+
+# Copy Executable in root folder
+cp ../build/test/FileSaverTest ..

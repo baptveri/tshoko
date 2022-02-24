@@ -1,5 +1,5 @@
 *.so
 .vscode/*
 build/*
-pending/*
 *.wav
+FileSaverTest

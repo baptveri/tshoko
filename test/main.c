@@ -169,6 +169,10 @@ int main(int argc, char *argv[])
         sampleIdx += (uint32_t)nbReadSamples * nbChannels;
     }
 
+    // Close processing
+    file_saver_close(p_file_saver);
+
+    // Export output file
     SNDFILE *outFile;
     SF_INFO outFileInfo;
     outFileInfo.frames = inFileInfo.frames;
@@ -221,9 +225,9 @@ int32_t parseOptions(int argc,
     // No argument and help display 
     if(argc == 1)
     {
-        printf("%s -%s inputfile -%s outputfile\n",
-            argv[0], &opt_input, &opt_output);
-        printf("%s -%s for details\n\n", argv[0], &opt_help);
+        printf("%s -%c inputfile -%c outputfile\n",
+            argv[0], opt_input, opt_output);
+        printf("%s -%c for details\n\n", argv[0], opt_help);
         // std::cout << argv[0] << " " 
         //             << "-" << opt_input << " inputfile "
         //             << "-" << opt_output << " outputfile" << std::endl
@@ -236,8 +240,8 @@ int32_t parseOptions(int argc,
         && argv[1][1] == opt_help
         && argv[1][2] == 0)
     {
-        printf("-%s input: input audio file\n", &opt_input);
-        printf("-%s ouput: output audio file\n", &opt_output);
+        printf("-%c input: input audio file\n", opt_input);
+        printf("-%c ouput: output audio file\n", opt_output);
         // std::cout << '-' << opt_input << " input: input audio file"
         //           << std::endl
         //           << '-' << opt_output << " ouput: output audio file"

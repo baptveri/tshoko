@@ -17,3 +17,4 @@ cd $SCRIPTDIR/..
 
 # Remove build directory
 rm -rf build/
+rm FileSaverTest

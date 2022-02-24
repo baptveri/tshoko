@@ -39,6 +39,8 @@ uint32_t file_saver_get_size();
 
 void file_saver_init(file_saver_t* p_file_saver);
 
+void file_saver_close(file_saver_t* p_file_saver);
+
 void file_saver_process(
     file_saver_t* p_file_saver,
     float32_t** p_in,
