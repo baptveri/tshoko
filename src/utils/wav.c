@@ -8,7 +8,7 @@
 int wav_is_valid(
     FILE* fid,
     short audioChannels,
-    long samplesPerSec,
+    int samplesPerSec,
     short bitsPerSample)
 {
     wav_header_t wav_header;
@@ -19,7 +19,7 @@ int wav_is_valid(
   // Check the format
   if(wav_header.SamplesPerSec != samplesPerSec)
   {
-    printf("Error: wavefile is not sampled at %dHz !", samplesPerSec);
+    printf("Error: wavefile is not sampled at %dHz !", (int)samplesPerSec);
     return 1;
   }
   if(wav_header.AudioChannels != audioChannels)
@@ -41,7 +41,7 @@ int wav_is_valid(
 void wav_write_header(
     FILE* fid,
     short audioChannels,
-    long samplesPerSec,
+    int samplesPerSec,
     short bitsPerSample)
 {
     wav_header_t wav_header;
@@ -66,12 +66,14 @@ void wav_write_header(
 // Write length info in wavefile's header
 void wav_write_length_in_header(
     FILE* fid,
-    long nbsample,
+    int nbsample,
     short audioChannels,
     short bitsPerSample)
 {
-    long length1;
-    long length2;
+    int length1;
+    int length2;
+
+    int ptr;
 
     length1 = nbsample * audioChannels * bitsPerSample + 4 + 16 + 8 + 8;
     // nbsample*nbchannel*nbbitspersample/8
@@ -79,8 +81,9 @@ void wav_write_length_in_header(
 
     // Write total length
     fseek(fid, 4, SEEK_SET);
-    fwrite(&length1, sizeof(long), 1, fid);
+    fwrite(&length1, sizeof(int), 1, fid);
+
     // Write data length
     fseek(fid, 40, SEEK_SET);
-    fwrite(&length2, sizeof(long), 1, fid);
+    fwrite(&length2, sizeof(int), 1, fid);
 }

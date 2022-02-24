@@ -9,11 +9,24 @@
 #include "utils.h"
 
 // The port numbers for the plugin
-#define TS_AUTO_LEVEL_BYPASS    0
-#define TS_AUTO_LEVEL_IN_L      1
-#define TS_AUTO_LEVEL_IN_R      2
-#define TS_AUTO_LEVEL_OUT_L     3
-#define TS_AUTO_LEVEL_OUT_R     4
+#define TS_AUTO_LEVEL_BYPASS                0
+
+#define TS_AUTO_LEVEL_Z0_RMS                1
+#define TS_AUTO_LEVEL_NOISE_LEVEL           2
+#define TS_AUTO_LEVEL_NOISE_TIME_SAMPLE     3
+#define TS_AUTO_LEVEL_RMS_TARGET            4
+#define TS_AUTO_LEVEL_MAX_GAIN              5
+#define TS_AUTO_LEVEL_MIN_GAIN              6
+#define TS_AUTO_LEVEL_Z0_GAIN               7
+#define TS_AUTO_LEVEL_COMP_RELEASE          8
+#define TS_AUTO_LEVEL_COMP_THRESHOLD        9
+
+#define TS_AUTO_LEVEL_IN_L                  10
+#define TS_AUTO_LEVEL_IN_R                  11
+#define TS_AUTO_LEVEL_OUT_L                 12
+#define TS_AUTO_LEVEL_OUT_R                 13
+
+#define TS_AUTO_LEVEL_NB_PORTS              14
 
 // Global Variables
 LADSPA_Descriptor* g_tsAutoLevelDescriptor = NULL;
@@ -51,12 +64,77 @@ static void connectPortToTshokoAutoLevel(
 	LADSPA_Data * DataLocation)
 {
     tshoko_auto_level_t * tshoko_auto_level;
+    unsigned long uInt32Value;
 
     tshoko_auto_level = (tshoko_auto_level_t *)Instance;
     switch (Port) 
     {
         case TS_AUTO_LEVEL_BYPASS:
             tshoko_auto_level->m_bypass = DataLocation;
+            break;
+
+        case TS_AUTO_LEVEL_Z0_RMS:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_Z0_RMS,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_NOISE_LEVEL:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_NOISE_LEVEL,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_NOISE_TIME_SAMPLE:
+            uInt32Value = (uint32_t)*DataLocation;
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_NOISE_TIME_SAMPLE,
+                (void*)&uInt32Value);
+            break;
+
+        case TS_AUTO_LEVEL_RMS_TARGET:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_RMS_TARGET,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_MAX_GAIN:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_MAX_GAIN,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_MIN_GAIN:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_MIN_GAIN,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_Z0_GAIN:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_Z0_GAIN,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_COMP_RELEASE:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_COMP_RELEASE,
+                (void*)DataLocation);
+            break;
+
+        case TS_AUTO_LEVEL_COMP_THRESHOLD:
+            auto_level_set(
+                &tshoko_auto_level->auto_level,
+                AUTO_LEVEL_COMP_THRESHOLD,
+                (void*)DataLocation);
             break;
 
         case TS_AUTO_LEVEL_IN_L:
@@ -134,17 +212,37 @@ ON_LOAD_ROUTINE {
         g_tsAutoLevelDescriptor->Name  = strdup("Tshoko Auto Level");
         g_tsAutoLevelDescriptor->Maker = strdup("Baptiste Vericel");
         g_tsAutoLevelDescriptor->Copyright = strdup("None");
-        g_tsAutoLevelDescriptor->PortCount = 5;
+        g_tsAutoLevelDescriptor->PortCount = TS_AUTO_LEVEL_NB_PORTS;
 
         // Port descriptors
         piPortDescriptors = 
-            (LADSPA_PortDescriptor *)calloc(5, sizeof(LADSPA_PortDescriptor));
+            (LADSPA_PortDescriptor *)calloc(TS_AUTO_LEVEL_NB_PORTS, sizeof(LADSPA_PortDescriptor));
 
         g_tsAutoLevelDescriptor->PortDescriptors =
             (const LADSPA_PortDescriptor *)piPortDescriptors;
 
         piPortDescriptors[TS_AUTO_LEVEL_BYPASS] =
             LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+
+        piPortDescriptors[TS_AUTO_LEVEL_Z0_RMS] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_NOISE_LEVEL] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_NOISE_TIME_SAMPLE] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_RMS_TARGET] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_MAX_GAIN] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_MIN_GAIN] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_Z0_GAIN] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_COMP_RELEASE] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+        piPortDescriptors[TS_AUTO_LEVEL_COMP_THRESHOLD] =
+            LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; 
+
         piPortDescriptors[TS_AUTO_LEVEL_IN_L]  =
             LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
         piPortDescriptors[TS_AUTO_LEVEL_IN_R]  =
@@ -155,19 +253,29 @@ ON_LOAD_ROUTINE {
             LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 
         // Port names
-        pcPortNames = (char **)calloc(5, sizeof(char *));
+        pcPortNames = (char **)calloc(TS_AUTO_LEVEL_NB_PORTS, sizeof(char *));
 
         g_tsAutoLevelDescriptor->PortNames = (const char **)pcPortNames;
 
         pcPortNames[TS_AUTO_LEVEL_BYPASS] = strdup("Bypass");
+        pcPortNames[TS_AUTO_LEVEL_Z0_RMS] = strdup("RMS smoothing time coefficient");
+        pcPortNames[TS_AUTO_LEVEL_NOISE_LEVEL] = strdup("Noise Level (dBFS)");
+        pcPortNames[TS_AUTO_LEVEL_NOISE_TIME_SAMPLE] = strdup("Noise time (samples)");
+        pcPortNames[TS_AUTO_LEVEL_RMS_TARGET] = strdup("Target RMS (dBFS)");
+        pcPortNames[TS_AUTO_LEVEL_MAX_GAIN] = strdup("Maximum gain (dB)");
+        pcPortNames[TS_AUTO_LEVEL_MIN_GAIN] = strdup("Minimum gain (dB)");
+        pcPortNames[TS_AUTO_LEVEL_Z0_GAIN] = strdup("Gain smoothing coefficient");
+        pcPortNames[TS_AUTO_LEVEL_COMP_RELEASE] = strdup("Limiter release coefficient");
+        pcPortNames[TS_AUTO_LEVEL_COMP_THRESHOLD] = strdup("Limiter threshold (dBFS)");
+
         pcPortNames[TS_AUTO_LEVEL_IN_L]   = strdup("Input (Left)");
         pcPortNames[TS_AUTO_LEVEL_IN_R]   = strdup("Input (Right)");
         pcPortNames[TS_AUTO_LEVEL_OUT_L]  = strdup("Output (Left)");
         pcPortNames[TS_AUTO_LEVEL_OUT_R]  = strdup("Output (Right)");
-
+        
         // Hints
         psPortRangeHints =
-            ((LADSPA_PortRangeHint *) calloc(5, sizeof(LADSPA_PortRangeHint)));
+            ((LADSPA_PortRangeHint *) calloc(TS_AUTO_LEVEL_NB_PORTS, sizeof(LADSPA_PortRangeHint)));
 
         g_tsAutoLevelDescriptor->PortRangeHints =
             (const LADSPA_PortRangeHint *)psPortRangeHints;
@@ -175,8 +283,18 @@ ON_LOAD_ROUTINE {
         psPortRangeHints[TS_AUTO_LEVEL_BYPASS].HintDescriptor =
             ( LADSPA_HINT_BOUNDED_BELOW
 	        | LADSPA_HINT_DEFAULT_0 );
-
         psPortRangeHints[TS_AUTO_LEVEL_BYPASS].LowerBound    = 0;
+
+        psPortRangeHints[TS_AUTO_LEVEL_Z0_RMS].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_NOISE_LEVEL].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_NOISE_TIME_SAMPLE].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_RMS_TARGET].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_MAX_GAIN].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_MIN_GAIN].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_Z0_GAIN].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_COMP_RELEASE].HintDescriptor = 0;
+        psPortRangeHints[TS_AUTO_LEVEL_COMP_THRESHOLD].HintDescriptor = 0;
+
         psPortRangeHints[TS_AUTO_LEVEL_IN_L].HintDescriptor  = 0;
         psPortRangeHints[TS_AUTO_LEVEL_IN_R].HintDescriptor  = 0;
         psPortRangeHints[TS_AUTO_LEVEL_OUT_L].HintDescriptor = 0;
